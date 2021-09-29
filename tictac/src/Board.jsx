@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import { useDispatch } from "react-redux";
 import "./index.css";
 import Square from "./Square";
-const Board = () => {
+import { updateHistory } from "./actions";
+const Board = (id) => {
   // hooks
+  const gameID = id
+  const dispatch = useDispatch()
   const [winner, setWinner] = useState(false);
   const [history, setHistory] = useState([
-    { board: Array(9).fill(null), winner: false, moves: 0 },
+    { board: Array(9).fill(null), winner: false, moves: 0, gameID: id},
   ]); //stack would be better
   const [boardState, setBoardState] = useState(Array(9).fill(null));
   const [countMove, setCountMove] = useState(1);
-
+  console.log(history)
   // handles
   const handleGoHistory = (i) => {
     setBoardState(history[i].board);
@@ -36,14 +40,15 @@ const Board = () => {
       setBoardState(auxBoard);
       setHistory([
         ...newHistory,
-        { board: auxBoard, winner: winner, moves: countMove },
+        { board: auxBoard, winner: winner, moves: countMove,gameID: id},
       ]);
       setCountMove(countMove + 1);
       if (calculateWinner(auxBoard)) setWinner(nextMove);
     }
+    dispatch(updateHistory(history,id))
   };
 
-  function calculateWinner(squares) {
+  const calculateWinner = (squares)=> {
     const lines = [
       [0, 1, 2],
       [3, 4, 5],
