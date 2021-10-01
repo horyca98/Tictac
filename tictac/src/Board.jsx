@@ -1,29 +1,75 @@
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import ReactDOM from "react-dom";
 import { useDispatch } from "react-redux";
 import "./index.css";
 import Square from "./Square";
 import { updateHistory } from "./actions";
-const Board = (id) => {
+const Board = (props) => {
   // hooks
-  const gameID = id
+
+  const {roomID,bboardState,bwinner,bcountMove,bhistory,userMark} = props
   const dispatch = useDispatch()
-  const [winner, setWinner] = useState(false);
-  const [history, setHistory] = useState([
-    { board: Array(9).fill(null), winner: false, moves: 0, gameID: id},
-  ]); //stack would be better
-  const [boardState, setBoardState] = useState(Array(9).fill(null));
-  const [countMove, setCountMove] = useState(1);
-  console.log(history)
+  const [winner, setWinner] = useState(bwinner);
+  const [history, setHistory] = useState(bhistory); //stack would be better
+  const [boardState, setBoardState] = useState(bboardState);
+  const [countMove, setCountMove] = useState(bcountMove);
+  const [wasNewMove,setWasNewMove] = useState(false)
   // handles
+  useEffect (async ()=>{
+    if(wasNewMove) {
+      const response = await fetch("/game/updateGameDataById", 
+      {
+        method:'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body:JSON.stringify({
+          roomID:roomID,
+          history:history,
+          winner:winner,
+          boardState:boardState,
+          countMove:countMove,
+        })
+      })
+      setWasNewMove(false)
+    }
+  },[wasNewMove]
+  )
+  useEffect(() => {
+    const interval = setInterval(() => {
+      gameStateHasChanged(interval)
+    }, 1000);
+  }, []);
+  
   const handleGoHistory = (i) => {
     setBoardState(history[i].board);
     setWinner(history[i].winner);
     setCountMove(history[i].moves + 1);
   };
-
-  const handleClick = (i) => {
+  const gameStateHasChanged = async (interval) =>{
+    const response = await fetch("/game/getGameDataById?roomID="+roomID, 
+    {
+      method:'GET',
+      headers: { 'Content-Type': 'application/json' },
+    })
+    const status = response.status
+    if(status==200){
+      const data = await response.json()
+      console.log(data.countMove + "      "  + countMove)
+      if(data.countMove > countMove){
+        setHistory(data.history)
+        setBoardState(data.boardState)
+        setWinner(data.winner)
+        setCountMove(data.countMove)
+        if(data.winner)
+          clearInterval(interval)
+      }
+    }
+  }
+  const handleClick = async (i) => {  
     const nextMove = countMove % 2 == 1 ? "X" : "O";
+    if(nextMove!=userMark){
+      alert("Please wait for your turn")
+      return
+    }
     const auxBoard = [...boardState];
     let newHistory = history;
 
@@ -40,12 +86,12 @@ const Board = (id) => {
       setBoardState(auxBoard);
       setHistory([
         ...newHistory,
-        { board: auxBoard, winner: winner, moves: countMove,gameID: id},
+        { board: auxBoard, winner: winner, moves: countMove},
       ]);
       setCountMove(countMove + 1);
       if (calculateWinner(auxBoard)) setWinner(nextMove);
     }
-    dispatch(updateHistory(history,id))
+    setWasNewMove(true)
   };
 
   const calculateWinner = (squares)=> {

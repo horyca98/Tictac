@@ -7,7 +7,7 @@ export default defineConfig({
   optimizeDeps: { exclude: ['prop-types'] },
   server: {
     proxy: {
-      "/users": {
+      "/game": {
         target: "http://localhost:5000",
         changeOrigin: true,
         secure: false,

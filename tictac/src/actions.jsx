@@ -1,16 +1,16 @@
 import * as types from './constants/ActionTypes'
-export const addHistory = (game)=>({
+export const addHistory = (roomID)=>({
     type:types.ADD_HISTORY,
-    payload:game
+    payload:roomID
 })
-export const deleteHistory = (gameID) =>({
+export const deleteHistory = (roomID) =>({
     type:types.DELETE_HISTORY,
-    payload:gameID
+    payload:roomID
 })
-export const updateHistory = (history,gameID) => ({
+export const updateHistory = (history,roomID) => ({
     type:types.UPDATE_HISTORY,
     payload:{
         history:history,
-        gameID:gameID
+        roomID:roomID
     }
 })
