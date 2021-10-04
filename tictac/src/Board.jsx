@@ -17,7 +17,6 @@ const Board = (props) => {
   const [countMove, setCountMove] = useState(bcountMove);
   const [wasNewMove,setWasNewMove] = useState(false)
   const interval = useRef(null);
-
   // handles
   useEffect (async ()=>{
     if(wasNewMove) {
@@ -84,13 +83,15 @@ const Board = (props) => {
         setBoardState(data.boardState)
         setWinner(data.winner)
         setCountMove(data.countMove)
-        dispatch(updateHistory({history:data.history,roomID:roomID}))
+        console.log(data.history[data.history.length-1])
+        dispatch(updateHistory(data.history[data.history.length-1],roomID))
     
       }
 
     }
   }
   const handleClick = async (i) => {  
+    console.log(history)
     const nextMove = countMove % 2 == 1 ? "X" : "O";
     if(nextMove!=userMark){
       alert("Please wait for your turn")
@@ -114,10 +115,8 @@ const Board = (props) => {
     if (auxBoard[i] == null && !winner) {
       auxBoard[i] = nextMove;
       setBoardState(auxBoard);
-      dispatch(updateHistory({history:[
-          ...newHistory,
-          { board: auxBoard, winner: winner, moves: countMove},
-        ],roomID:roomID}))
+      dispatch(updateHistory({ board: auxBoard, winner: winner, moves: countMove},
+        roomID))
       // setHistory([
       //   ...newHistory,
       //   { board: auxBoard, winner: winner, moves: countMove},
