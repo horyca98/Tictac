@@ -1,8 +1,9 @@
-import React, { useState ,useEffect} from "react";
+import React, { useState ,useEffect,useRef} from "react";
 import ReactDOM from "react-dom";
 import { useDispatch } from "react-redux";
 import "./index.css";
 import Square from "./Square";
+import { useSelector } from "react-redux";
 import { updateHistory } from "./actions";
 const Board = (props) => {
   // hooks
@@ -10,13 +11,19 @@ const Board = (props) => {
   const {roomID,bboardState,bwinner,bcountMove,bhistory,userMark} = props
   const dispatch = useDispatch()
   const [winner, setWinner] = useState(bwinner);
-  const [history, setHistory] = useState(bhistory); //stack would be better
+  // const [history, setHistory] = useState(bhistory); //stack would be better
+  const history = useSelector((state)=>state.history)
   const [boardState, setBoardState] = useState(bboardState);
   const [countMove, setCountMove] = useState(bcountMove);
   const [wasNewMove,setWasNewMove] = useState(false)
+  const interval = useRef(null);
+
   // handles
   useEffect (async ()=>{
     if(wasNewMove) {
+      if(interval.current){
+        clearInterval(interval.current)
+      }
       const response = await fetch("/game/updateGameDataById", 
       {
         method:'PUT',
@@ -31,20 +38,34 @@ const Board = (props) => {
       })
       setWasNewMove(false)
     }
+    else{
+    interval.current = setInterval(async () => {
+        await gameStateHasChanged()
+      }, 3000);    
+    }
   },[wasNewMove]
   )
-  useEffect(() => {
-    const interval = setInterval(() => {
-      gameStateHasChanged(interval)
-    }, 1000);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(async () => {
+  //     await gameStateHasChanged(interval)
+  //   }, 7000);
+  // }, []);
   
   const handleGoHistory = (i) => {
-    setBoardState(history[i].board);
-    setWinner(history[i].winner);
-    setCountMove(history[i].moves + 1);
+      setBoardState(history[i].board);
+      setWinner(history[i].winner);
+      setCountMove(history[i].moves + 1);
+      clearInterval(interval.current)
+
+      if(i==history.length-1){
+        interval.current = setInterval(async () => {
+          await gameStateHasChanged()
+        }, 3000); 
+      }
+
+    //last move
   };
-  const gameStateHasChanged = async (interval) =>{
+  const gameStateHasChanged = async () =>{
     const response = await fetch("/game/getGameDataById?roomID="+roomID, 
     {
       method:'GET',
@@ -53,15 +74,20 @@ const Board = (props) => {
     const status = response.status
     if(status==200){
       const data = await response.json()
-      console.log(data.countMove + "      "  + countMove)
-      if(data.countMove > countMove){
-        setHistory(data.history)
+      if(calculateWinner(data.boardState)||countMove>=10){
+        // console.log("INTERVAL STOP")
+        clearInterval(interval.current)
+      }
+      if(data.countMove >countMove&& ((data.countMove%2==1 && userMark=="X")||(data.countMove%2==0&&userMark=="O"))){
+        clearInterval(interval.current)
+        // console.log("COUNT INSIDE IF  " + countMove)
         setBoardState(data.boardState)
         setWinner(data.winner)
         setCountMove(data.countMove)
-        if(data.winner)
-          clearInterval(interval)
+        dispatch(updateHistory({history:data.history,roomID:roomID}))
+    
       }
+
     }
   }
   const handleClick = async (i) => {  
@@ -70,24 +96,32 @@ const Board = (props) => {
       alert("Please wait for your turn")
       return
     }
+    if(history && countMove!=history[history.length-1].moves+1){
+      alert("You cannot redo a move in the past!")
+      return
+    }
     const auxBoard = [...boardState];
     let newHistory = history;
 
     // back in time
-    if (
-      history[history.length - 1].moves != countMove - 1 &&
-      auxBoard[i] == null
-    ) {
-      newHistory = history.splice(0, countMove);
-      setHistory(newHistory);
-    }
+    // if (
+    //   history[history.length - 1].moves != countMove - 1 &&
+    //   auxBoard[i] == null
+    // ) {
+    //   newHistory = history.splice(0, countMove);
+    //   dispatch(updateHistory({historynewHistory:history,roomID:roomID}));
+    // }
     if (auxBoard[i] == null && !winner) {
       auxBoard[i] = nextMove;
       setBoardState(auxBoard);
-      setHistory([
-        ...newHistory,
-        { board: auxBoard, winner: winner, moves: countMove},
-      ]);
+      dispatch(updateHistory({history:[
+          ...newHistory,
+          { board: auxBoard, winner: winner, moves: countMove},
+        ],roomID:roomID}))
+      // setHistory([
+      //   ...newHistory,
+      //   { board: auxBoard, winner: winner, moves: countMove},
+      // ]);
       setCountMove(countMove + 1);
       if (calculateWinner(auxBoard)) setWinner(nextMove);
     }

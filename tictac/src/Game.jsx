@@ -3,7 +3,7 @@ import "./index.css";
 import Board from "./Board";
 import { useDispatch } from "react-redux";
 import {useState} from "react"
-import { addHistory } from "./actions";
+import { addHistory,updateHistory } from "./actions";
 
 const Game = () => {
   const dispatch = useDispatch()
@@ -23,7 +23,7 @@ const Game = () => {
   
     const data = await response.json()
     console.log(data)
-    dispatch(data.history)
+    dispatch(updateHistory({history:data.history}))
     if(status == 200){
       setGame({...data,userMark:"O"})
     }
