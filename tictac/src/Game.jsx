@@ -2,10 +2,15 @@ import React from "react";
 import "./index.css";
 import Board from "./Board";
 import { useDispatch } from "react-redux";
-import {useState} from "react"
+import {useState,useEffect} from "react"
 import { addHistory,updateHistory } from "./actions";
+import { io } from "socket.io-client";
+
+
+
 
 const Game = () => {
+
   const dispatch = useDispatch()
   const [roomID, setRoomID] = useState(null)
   const [inputRoomID,setInputRoomID] = useState('')
@@ -13,6 +18,23 @@ const Game = () => {
   const handleInputChange = (e) =>{
     setInputRoomID(e.target.value)
   }
+  useEffect(()=>{
+    console.log("Hello")
+    let socket
+    const ENDPOINT = "http://localhost:5000"
+    socket = io.connect(ENDPOINT,{transports: ['websocket']});
+    socket.on("connect", () => {
+      console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+    });
+    
+    socket.on("disconnect", () => {
+      console.log(socket.id); // undefined
+    });
+    socket.on("connect_error", (err) => {
+      console.log(`connect_error due to ${err.message}`);
+      console.log(err)
+    });
+  },[])
   const handleJoinGame = async() =>{
     const response = await fetch("/game/getGameDataById?roomID="+inputRoomID, 
     {

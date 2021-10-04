@@ -5,9 +5,11 @@ import "./index.css";
 import Square from "./Square";
 import { useSelector } from "react-redux";
 import { updateHistory } from "./actions";
+
+
 const Board = (props) => {
   // hooks
-
+ 
   const {roomID,bboardState,bwinner,bcountMove,bhistory,userMark} = props
   const dispatch = useDispatch()
   const [winner, setWinner] = useState(bwinner);
