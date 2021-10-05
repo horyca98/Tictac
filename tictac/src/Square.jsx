@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import "./index.css";
-const Square = ({ value, handleClick }) => {
-  return (
-    <button className="square" onClick={handleClick}>
-      {value}
-    </button>
-  );
-};
+import React from 'react';
+import './index.css';
+
+// eslint-disable-next-line react/prop-types
+const Square = ({ value, handleClick }) => (
+  <button type="button" className="square" onClick={handleClick}>
+    {value}
+  </button>
+);
 export default Square;
