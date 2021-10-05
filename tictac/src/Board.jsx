@@ -5,7 +5,7 @@ import "./index.css";
 import Square from "./Square";
 import { useSelector } from "react-redux";
 import { updateHistory } from "./actions";
-
+import {io} from 'socket.io-client'
 
 const Board = (props) => {
   // hooks
@@ -20,11 +20,27 @@ const Board = (props) => {
   const [wasNewMove,setWasNewMove] = useState(false)
   const interval = useRef(null);
   // handles
+  let socket
+  useEffect(()=>{
+    const ENDPOINT = "http://localhost:5000"
+    socket = io.connect(ENDPOINT,{transports: ['websocket']});
+    socket.on("connect", () => {
+      console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+    });
+    
+    socket.on("disconnect", () => {
+      console.log("Discconectedddddd")
+      console.log(socket.id); // undefined
+    });
+    socket.on("connect_error", (err) => {
+      console.log(`connect_error due to ${err.message}`);
+    });
+    socket.on("receive",message=>console.log("WE HAVE RECEIVED MESSAGE"))
+  },[])
+
+
   useEffect (async ()=>{
     if(wasNewMove) {
-      if(interval.current){
-        clearInterval(interval.current)
-      }
       const response = await fetch("/game/updateGameDataById", 
       {
         method:'PUT',
@@ -39,11 +55,6 @@ const Board = (props) => {
       })
       setWasNewMove(false)
     }
-    else{
-    interval.current = setInterval(async () => {
-        await gameStateHasChanged()
-      }, 3000);    
-    }
   },[wasNewMove]
   )
   // useEffect(() => {
@@ -56,43 +67,38 @@ const Board = (props) => {
       setBoardState(history[i].board);
       setWinner(history[i].winner);
       setCountMove(history[i].moves + 1);
-      clearInterval(interval.current)
 
-      if(i==history.length-1){
-        interval.current = setInterval(async () => {
-          await gameStateHasChanged()
-        }, 3000); 
-      }
 
     //last move
   };
-  const gameStateHasChanged = async () =>{
-    const response = await fetch("/game/getGameDataById?roomID="+roomID, 
-    {
-      method:'GET',
-      headers: { 'Content-Type': 'application/json' },
-    })
-    const status = response.status
-    if(status==200){
-      const data = await response.json()
-      if(calculateWinner(data.boardState)||countMove>=10){
-        // console.log("INTERVAL STOP")
-        clearInterval(interval.current)
-      }
-      if(data.countMove >countMove&& ((data.countMove%2==1 && userMark=="X")||(data.countMove%2==0&&userMark=="O"))){
-        clearInterval(interval.current)
-        // console.log("COUNT INSIDE IF  " + countMove)
-        setBoardState(data.boardState)
-        setWinner(data.winner)
-        setCountMove(data.countMove)
-        console.log(data.history[data.history.length-1])
-        dispatch(updateHistory(data.history[data.history.length-1],roomID))
+  // const gameStateHasChanged = async () =>{
+  //   const response = await fetch("/game/getGameDataById?roomID="+roomID, 
+  //   {
+  //     method:'GET',
+  //     headers: { 'Content-Type': 'application/json' },
+  //   })
+  //   const status = response.status
+  //   if(status==200){
+  //     const data = await response.json()
+  //     if(calculateWinner(data.boardState)||countMove>=10){
+  //       // console.log("INTERVAL STOP")
+  //       clearInterval(interval.current)
+  //     }
+  //     if(data.countMove >countMove&& ((data.countMove%2==1 && userMark=="X")||(data.countMove%2==0&&userMark=="O"))){
+  //       clearInterval(interval.current)
+  //       // console.log("COUNT INSIDE IF  " + countMove)
+  //       setBoardState(data.boardState)
+  //       setWinner(data.winner)
+  //       setCountMove(data.countMove)
+  //       console.log(data.history[data.history.length-1])
+  //       dispatch(updateHistory(data.history[data.history.length-1],roomID))
     
-      }
+  //     }
 
-    }
-  }
+  //   }
+  // }
   const handleClick = async (i) => {  
+    socket.emit("click",{aa:"bb"})
     console.log(history)
     const nextMove = countMove % 2 == 1 ? "X" : "O";
     if(nextMove!=userMark){

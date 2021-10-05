@@ -18,23 +18,7 @@ const Game = () => {
   const handleInputChange = (e) =>{
     setInputRoomID(e.target.value)
   }
-  useEffect(()=>{
-    console.log("Hello")
-    let socket
-    const ENDPOINT = "http://localhost:5000"
-    socket = io.connect(ENDPOINT,{transports: ['websocket']});
-    socket.on("connect", () => {
-      console.log(socket.id); // x8WIv7-mJelg7on_ALbx
-    });
-    
-    socket.on("disconnect", () => {
-      console.log(socket.id); // undefined
-    });
-    socket.on("connect_error", (err) => {
-      console.log(`connect_error due to ${err.message}`);
-      console.log(err)
-    });
-  },[])
+  
   const handleJoinGame = async() =>{
     const response = await fetch("/game/getGameDataById?roomID="+inputRoomID, 
     {
