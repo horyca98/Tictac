@@ -18,41 +18,46 @@ const Board = (props) => {
   const [boardState, setBoardState] = useState(bboardState);
   const [countMove, setCountMove] = useState(bcountMove);
   const [wasNewMove,setWasNewMove] = useState(false)
-  const interval = useRef(null);
+  const [isPlayable,setIsPlayable] = useState(false)
+  const [isSpectable,setIsSpectable] = useState(false)
+  const socket = useRef()
   // handles
-  let socket
   useEffect(()=>{
     const ENDPOINT = "http://localhost:5000"
-    socket = io.connect(ENDPOINT,{transports: ['websocket']});
-    socket.on("connect", () => {
-      console.log(socket.id); // x8WIv7-mJelg7on_ALbx
+    socket.current = io.connect(ENDPOINT,{transports: ['websocket']})
+    socket.current.on("connect", () => {
+      socket.current.emit('join',{roomID:roomID})
     });
     
-    socket.on("disconnect", () => {
-      console.log("Discconectedddddd")
-      console.log(socket.id); // undefined
-    });
-    socket.on("connect_error", (err) => {
+    socket.current.on("connect_error", (err) => {
       console.log(`connect_error due to ${err.message}`);
     });
-    socket.on("receive",message=>console.log("WE HAVE RECEIVED MESSAGE"))
+    socket.current.on("room_status",status=>{
+      setBoardState(status.boardState)
+      setCountMove(status.countMove)
+      setWinner(status.winner)
+      dispatch(updateHistory(status.history[status.history.length-1],roomID))
+    })
+    socket.current.on("user_join",usersInRoom=>{
+      if(usersInRoom==2)
+        setIsPlayable(true)
+      else if(usersInRoom == 3){
+        setIsSpectable(true)
+      }
+    })
   },[])
 
 
   useEffect (async ()=>{
     if(wasNewMove) {
-      const response = await fetch("/game/updateGameDataById", 
-      {
-        method:'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body:JSON.stringify({
-          roomID:roomID,
-          history:history,
-          winner:winner,
-          boardState:boardState,
-          countMove:countMove,
-        })
-      })
+      const newRoomStatus = {
+            roomID:roomID,
+            history:history,
+            winner:winner,
+            boardState:boardState,
+            countMove:countMove,
+      }
+      socket.current.emit("update_room",newRoomStatus)
       setWasNewMove(false)
     }
   },[wasNewMove]
@@ -69,70 +74,45 @@ const Board = (props) => {
       setCountMove(history[i].moves + 1);
 
 
-    //last move
   };
-  // const gameStateHasChanged = async () =>{
-  //   const response = await fetch("/game/getGameDataById?roomID="+roomID, 
-  //   {
-  //     method:'GET',
-  //     headers: { 'Content-Type': 'application/json' },
-  //   })
-  //   const status = response.status
-  //   if(status==200){
-  //     const data = await response.json()
-  //     if(calculateWinner(data.boardState)||countMove>=10){
-  //       // console.log("INTERVAL STOP")
-  //       clearInterval(interval.current)
-  //     }
-  //     if(data.countMove >countMove&& ((data.countMove%2==1 && userMark=="X")||(data.countMove%2==0&&userMark=="O"))){
-  //       clearInterval(interval.current)
-  //       // console.log("COUNT INSIDE IF  " + countMove)
-  //       setBoardState(data.boardState)
-  //       setWinner(data.winner)
-  //       setCountMove(data.countMove)
-  //       console.log(data.history[data.history.length-1])
-  //       dispatch(updateHistory(data.history[data.history.length-1],roomID))
-    
-  //     }
-
-  //   }
-  // }
   const handleClick = async (i) => {  
-    socket.emit("click",{aa:"bb"})
-    console.log(history)
     const nextMove = countMove % 2 == 1 ? "X" : "O";
-    if(nextMove!=userMark){
-      alert("Please wait for your turn")
+    if(winner){
+      alert("The game was already won!")
       return
     }
+    if(!isPlayable && isSpectable){
+      alert("You cannot play while spectating")
+      return
+    }
+    if(!isPlayable){
+      alert("Please wait for another user to join")
+      return
+    }
+
     if(history && countMove!=history[history.length-1].moves+1){
       alert("You cannot redo a move in the past!")
       return
     }
-    const auxBoard = [...boardState];
-    let newHistory = history;
+    if(nextMove!=userMark){
+      alert("Please wait for your turn")
+      return
+    }
 
-    // back in time
-    // if (
-    //   history[history.length - 1].moves != countMove - 1 &&
-    //   auxBoard[i] == null
-    // ) {
-    //   newHistory = history.splice(0, countMove);
-    //   dispatch(updateHistory({historynewHistory:history,roomID:roomID}));
-    // }
+    const auxBoard = [...boardState];
+
+  
     if (auxBoard[i] == null && !winner) {
       auxBoard[i] = nextMove;
       setBoardState(auxBoard);
       dispatch(updateHistory({ board: auxBoard, winner: winner, moves: countMove},
         roomID))
-      // setHistory([
-      //   ...newHistory,
-      //   { board: auxBoard, winner: winner, moves: countMove},
-      // ]);
       setCountMove(countMove + 1);
       if (calculateWinner(auxBoard)) setWinner(nextMove);
+      setWasNewMove(true)
     }
-    setWasNewMove(true)
+
+
   };
 
   const calculateWinner = (squares)=> {
@@ -189,7 +169,11 @@ const Board = (props) => {
         {renderSquare(8)}
       </div>
       <ol>
-        {history.length > 0
+        {
+        
+        !isPlayable && !isSpectable ? "Waiting for other player to join":
+        !isPlayable && isSpectable ? "You are now spectating" : 
+        history.length > 0
           ? history.map((step, move) => {
               return (
                 <li key={move}>

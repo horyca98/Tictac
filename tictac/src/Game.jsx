@@ -29,7 +29,7 @@ const Game = () => {
   
     const data = await response.json()
     console.log(data)
-    dispatch(updateHistory(data.history,roomID))
+    dispatch(updateHistory(data.history,data.roomID))
     if(status == 200){
       setGame({...data,userMark:"O"})
     }

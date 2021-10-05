@@ -37,7 +37,7 @@ router.get("/getGameDataById", async function (req, res) {
   const roomID = req.query.roomID;
   try{
     const game = await Game.findOne({roomID:roomID})
-    res.status(200).json({boardState:game.boardState,winner:game.winner,history:game.history,countMove:game.countMove,roomID:roomID})
+    res.status(200).json({boardState:game.boardState,winner:game.winner,history:game.history,countMove:game.countMove,roomID:parseInt(roomID)})
   }
   catch(e){
     res.status(500).json({message:"Room id not found"})

@@ -15,7 +15,7 @@ const game = new mongoose.Schema({
         type:Array
     },
     roomID:{
-        type:String,
+        type:Number,
         unique:true
     },
 });
