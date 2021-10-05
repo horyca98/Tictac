@@ -13,7 +13,6 @@ const Board = (props) => {
   const {roomID,bboardState,bwinner,bcountMove,bhistory,userMark} = props
   const dispatch = useDispatch()
   const [winner, setWinner] = useState(bwinner);
-  // const [history, setHistory] = useState(bhistory); //stack would be better
   const history = useSelector((state)=>state.history)
   const [boardState, setBoardState] = useState(bboardState);
   const [countMove, setCountMove] = useState(bcountMove);
@@ -41,7 +40,7 @@ const Board = (props) => {
     socket.current.on("user_join",usersInRoom=>{
       if(usersInRoom==2)
         setIsPlayable(true)
-      else if(usersInRoom == 3){
+      else if(usersInRoom >= 3){
         setIsSpectable(true)
       }
     })
