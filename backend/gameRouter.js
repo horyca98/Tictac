@@ -25,6 +25,7 @@ router.put('/updateGameDataById', async (req, res) => {
   const {
     roomID, winner, history, countMove, boardState,
   } = req.body;
+
   try {
     await Game.findOneAndUpdate(
       { roomID },
@@ -45,6 +46,7 @@ router.put('/updateGameDataById', async (req, res) => {
 
 router.get('/getGameDataById', async (req, res) => {
   const { roomID } = req.query;
+
   try {
     const game = await Game.findOne({ roomID });
     res.status(200).json({

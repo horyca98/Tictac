@@ -9,7 +9,6 @@ const io = require('socket.io')(http, {
     methods: ['GET', 'POST'],
   },
 });
-
 const userRouter = require('./gameRouter');
 const Game = require('./Game');
 require('mongoose');

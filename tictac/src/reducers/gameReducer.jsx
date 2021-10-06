@@ -18,6 +18,7 @@ const history = (state = {}, action) => {
       return state.filter(
         (game) => game.id !== action.payload.gameID,
       );
+
     case types.UPDATE_HISTORY: {
       if (state.history) {
         return {

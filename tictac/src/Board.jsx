@@ -91,7 +91,8 @@ const Board = (props) => {
     return null;
   };
 
-  const handleGoHistory = (i) => {
+  // eslint-disable-next-line no-shadow
+  const handleGoHistory = (history, i) => {
     setBoardState(history[i].board);
     setWinner(history[i].winner);
     setCountMove(history[i].moves + 1);
@@ -174,7 +175,7 @@ const Board = (props) => {
                   <button
                     type="button"
                     onClick={() => {
-                      handleGoHistory(move);
+                      handleGoHistory(history, move);
                     }}
                   >
                     {move > 0 ? `Go to move #${move}` : 'Go to game start'}
