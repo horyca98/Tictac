@@ -14,9 +14,10 @@ const Game = () => {
   };
 
   // eslint-disable-next-line no-shadow
-  const joinGame = () => async (dispatch) => {
+  
+  const joinGame = (roomID) => async (dispatch) => {
     const response = await fetch(
-      `/game/getGameDataById?roomID=${inputRoomID}`,
+      `/game/getGameDataById?roomID=${roomID}`,
       {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
@@ -24,13 +25,13 @@ const Game = () => {
     );
     const { status } = response;
     const data = await response.json();
-    dispatch(updateHistory(data.history, data.roomID));
     if (status === 200) {
+      dispatch(updateHistory(data.history, data.roomID));
       setGame({ ...data, userMark: 'O' });
     } else alert('There is no room for this ID');
   };
   const handleJoinGame = () => {
-    dispatch(joinGame());
+    dispatch(joinGame(inputRoomID));
   };
   // eslint-disable-next-line no-shadow
   const createGame = () => async (dispatch) => {
@@ -46,8 +47,10 @@ const Game = () => {
         countMove: 1,
       }),
     });
-    if (response) {
-      const data = await response.json();
+    const { status } = response;
+    const data = await response.json();
+
+    if (status === 200) {
       setGame({ ...data, userMark: 'X' });
       dispatch(addHistory(data.roomID));
     }
