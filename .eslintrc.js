@@ -11,6 +11,9 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: ['react', 'prettier'],
-  rules: {},
+  plugins: ['prettier'],
+  rules: {
+    'lines-between-class-members': ['error', 'never'],
+
+  },
 };

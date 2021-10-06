@@ -2,8 +2,9 @@
 /* eslint-disable no-nested-ternary */
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import './index.css';
+import './Game.css';
 import { io } from 'socket.io-client';
+// eslint-disable-next-line import/no-cycle
 import Square from './Square';
 
 import { updateHistory } from './actions';
@@ -11,9 +12,8 @@ import { updateHistory } from './actions';
 const Board = (props) => {
   // hooks
   const {
-
-    // eslint-disable-next-line react/prop-types
-    roomID, bboardState, bwinner, bcountMove, userMark,
+    // eslint-disable-next-line
+     roomID, bboardState, bwinner, bcountMove, userMark,
   } = props;
   const dispatch = useDispatch();
   const [winner, setWinner] = useState(bwinner);
@@ -25,6 +25,7 @@ const Board = (props) => {
   const [isSpectable, setIsSpectable] = useState(false);
   const socket = useRef();
   // handles
+
   useEffect(() => {
     const ENDPOINT = 'http://localhost:5000';
     socket.current = io.connect(ENDPOINT, { transports: ['websocket'] });
@@ -61,6 +62,7 @@ const Board = (props) => {
       setWasNewMove(false);
     }
   }, [wasNewMove]);
+
   const calculateWinner = (squares) => {
     const lines = [
       [0, 1, 2],
@@ -86,11 +88,13 @@ const Board = (props) => {
 
     return null;
   };
+
   const handleGoHistory = (i) => {
     setBoardState(history[i].board);
     setWinner(history[i].winner);
     setCountMove(history[i].moves + 1);
   };
+
   const handleClick = async (i) => {
     const nextMove = countMove % 2 === 1 ? 'X' : 'O';
     if (winner) {
@@ -129,6 +133,7 @@ const Board = (props) => {
   };
 
   const renderSquare = (i) => <Square value={boardState[i]} handleClick={() => handleClick(i)} />;
+
   const status = winner
     ? `Winner is ${winner}`
     : countMove < 10

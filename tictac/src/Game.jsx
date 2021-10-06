@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import './index.css';
+import './Game.css';
 import { useDispatch } from 'react-redux';
+// eslint-disable-next-line import/no-cycle
 import Board from './Board';
 import { addHistory, updateHistory } from './actions';
 
@@ -33,7 +34,9 @@ const Game = () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        history: [{ board: Array(9).fill(null), winner: null, moves: 0 }],
+        history: [
+          { board: Array(9).fill(null), winner: null, moves: 0 },
+        ],
         winner: null,
         boardState: Array(9).fill(null),
         countMove: 1,
@@ -64,10 +67,14 @@ const Game = () => {
           </div>
         ) : (
           <div>
-            <button type="button" onClick={handleGameCreate}>Create new game</button>
+            <button type="button" onClick={handleGameCreate}>
+              Create new game
+            </button>
 
             <div>
-              <button type="button" onClick={handleJoinGame}>Join game</button>
+              <button type="button" onClick={handleJoinGame}>
+                Join game
+              </button>
               <input type="text" onChange={handleInputChange} />
             </div>
           </div>

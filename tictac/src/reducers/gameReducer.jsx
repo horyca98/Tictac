@@ -14,20 +14,28 @@ const history = (state = {}, action) => {
       return { ...state, history: newHistory };
     }
     case types.DELETE_HISTORY:
-      return state.filter((game) => game.id !== action.payload.gameID);
+      return state.filter(
+        (game) => game.id !== action.payload.gameID,
+      );
     case types.UPDATE_HISTORY: {
       if (state.history) {
         return {
           ...state,
           history: [
             ...state.history,
-            { ...action.payload.history, roomID: action.payload.roomID },
+            {
+              ...action.payload.history,
+              roomID: action.payload.roomID,
+            },
           ],
         };
       }
       return {
         ...state,
-        history: action.payload.history.map((e) => ({ ...e, roomID: action.payload.roomID })),
+        history: action.payload.history.map((e) => ({
+          ...e,
+          roomID: action.payload.roomID,
+        })),
       };
     }
     default:
