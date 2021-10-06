@@ -13,7 +13,8 @@ const Game = () => {
     setInputRoomID(e.target.value);
   };
 
-  const handleJoinGame = async () => {
+  // eslint-disable-next-line no-shadow
+  const joinGame = () => async (dispatch) => {
     const response = await fetch(
       `/game/getGameDataById?roomID=${inputRoomID}`,
       {
@@ -22,14 +23,17 @@ const Game = () => {
       },
     );
     const { status } = response;
-
     const data = await response.json();
     dispatch(updateHistory(data.history, data.roomID));
     if (status === 200) {
       setGame({ ...data, userMark: 'O' });
     } else alert('There is no room for this ID');
   };
-  const handleGameCreate = async () => {
+  const handleJoinGame = () => {
+    dispatch(joinGame());
+  };
+  // eslint-disable-next-line no-shadow
+  const createGame = () => async (dispatch) => {
     const response = await fetch('/game/addNewGame', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,10 +46,14 @@ const Game = () => {
         countMove: 1,
       }),
     });
-
-    const data = await response.json();
-    dispatch(addHistory(data.roomID));
-    setGame({ ...data, userMark: 'X' });
+    if (response) {
+      const data = await response.json();
+      setGame({ ...data, userMark: 'X' });
+      dispatch(addHistory(data.roomID));
+    }
+  };
+  const handleCreateGame = () => {
+    dispatch(createGame());
   };
   return (
     <div className="game">
@@ -67,7 +75,7 @@ const Game = () => {
           </div>
         ) : (
           <div>
-            <button type="button" onClick={handleGameCreate}>
+            <button type="button" onClick={handleCreateGame}>
               Create new game
             </button>
 

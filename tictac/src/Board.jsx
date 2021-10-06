@@ -163,8 +163,8 @@ const Board = (props) => {
         !isPlayable && !isSpectable ? 'Waiting for other player to join'
           : !isPlayable && isSpectable ? 'You are now spectating'
             : history.length > 0
-              ? history.map((i, move) => (
-                <li key={i}>
+              ? history.map((hist, move) => (
+                <li key={hist.moves}>
                   <button
                     type="button"
                     onClick={() => {
