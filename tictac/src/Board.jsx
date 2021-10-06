@@ -85,6 +85,7 @@ const Board = (props) => {
 
       return false;
     });
+
     if (result.length > 0) { return squares[result[0][0]]; }
 
     return null;
@@ -98,6 +99,7 @@ const Board = (props) => {
 
   const handleClick = async (i) => {
     const nextMove = countMove % 2 === 1 ? 'X' : 'O';
+
     if (winner) {
       alert('The game was already won!');
       return;

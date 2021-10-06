@@ -9,6 +9,7 @@ const Game = () => {
   const dispatch = useDispatch();
   const [inputRoomID, setInputRoomID] = useState('');
   const [game, setGame] = useState(null);
+
   const handleInputChange = (e) => {
     setInputRoomID(e.target.value);
   };

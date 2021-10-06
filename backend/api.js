@@ -22,6 +22,7 @@ io.on('connection', (socket) => {
   socket.on('join', (obj) => {
     socket.join(obj.roomID);
     const roomSize = io.sockets.adapter.rooms.get(obj.roomID).size;
+
     if (roomSize >= 2) {
       io.to(obj.roomID).emit('user_join', roomSize);
     }
