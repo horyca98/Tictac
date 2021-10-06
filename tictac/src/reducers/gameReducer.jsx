@@ -13,6 +13,7 @@ const history = (state = {}, action) => {
       ];
       return { ...state, history: newHistory };
     }
+
     case types.DELETE_HISTORY:
       return state.filter(
         (game) => game.id !== action.payload.gameID,
@@ -30,6 +31,7 @@ const history = (state = {}, action) => {
           ],
         };
       }
+
       return {
         ...state,
         history: action.payload.history.map((e) => ({
@@ -38,8 +40,10 @@ const history = (state = {}, action) => {
         })),
       };
     }
+
     default:
       return state;
   }
 };
+
 export default history;

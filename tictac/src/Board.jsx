@@ -82,6 +82,7 @@ const Board = (props) => {
       ) {
         return squares[a];
       }
+
       return false;
     });
     if (result.length > 0) { return squares[result[0][0]]; }
@@ -101,10 +102,12 @@ const Board = (props) => {
       alert('The game was already won!');
       return;
     }
+
     if (!isPlayable && isSpectable) {
       alert('You cannot play while spectating');
       return;
     }
+
     if (!isPlayable) {
       alert('Please wait for another user to join');
       return;
@@ -114,6 +117,7 @@ const Board = (props) => {
       alert('You cannot redo a move in the past!');
       return;
     }
+
     if (nextMove !== userMark) {
       alert('Please wait for your turn');
       return;
@@ -181,4 +185,5 @@ const Board = (props) => {
     </div>
   );
 };
+
 export default Board;

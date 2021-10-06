@@ -14,7 +14,6 @@ const Game = () => {
   };
 
   // eslint-disable-next-line no-shadow
-  
   const joinGame = (roomID) => async (dispatch) => {
     const response = await fetch(
       `/game/getGameDataById?roomID=${roomID}`,
@@ -30,9 +29,11 @@ const Game = () => {
       setGame({ ...data, userMark: 'O' });
     } else alert('There is no room for this ID');
   };
+
   const handleJoinGame = () => {
     dispatch(joinGame(inputRoomID));
   };
+
   // eslint-disable-next-line no-shadow
   const createGame = () => async (dispatch) => {
     const response = await fetch('/game/addNewGame', {
@@ -55,9 +56,11 @@ const Game = () => {
       dispatch(addHistory(data.roomID));
     }
   };
+
   const handleCreateGame = () => {
     dispatch(createGame());
   };
+
   return (
     <div className="game">
       <div className="game-board">
@@ -94,4 +97,5 @@ const Game = () => {
     </div>
   );
 };
+
 export default Game;

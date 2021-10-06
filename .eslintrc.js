@@ -11,16 +11,14 @@ module.exports = {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  parser:"babel-eslint",
+  parser: 'babel-eslint',
   plugins: ['prettier'],
   rules: {
     'lines-between-class-members': ['error', 'never'],
-    "padding-line-between-statements": [
-        "error",
-        { "blankLine": LINEBREAK_TYPE, "prev": STATEMENT_TYPE, "next": STATEMENT_TYPE },
-        { "blankLine": LINEBREAK_TYPE, "prev": STATEMENT_TYPE, "next": STATEMENT_TYPE },
-        { "blankLine": LINEBREAK_TYPE, "prev": STATEMENT_TYPE, "next": STATEMENT_TYPE },
-        { "blankLine": LINEBREAK_TYPE, "prev": STATEMENT_TYPE, "next": STATEMENT_TYPE },
+    'padding-line-between-statements': [
+      'error',
+      { blankLine: 'always', prev: 'function', next: '*' },
+      { blankLine: 'always', prev: 'block-like', next: '*' },
     ],
-  }
+  },
 };

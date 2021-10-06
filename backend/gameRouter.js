@@ -1,8 +1,10 @@
 const express = require('express');
 require('./connection')();
 
-const router = express.Router();
 const Game = require('./Game');
+
+const router = express.Router();
+
 require('mongoose');
 
 router.post('/addNewGame', async (req, res) => {
